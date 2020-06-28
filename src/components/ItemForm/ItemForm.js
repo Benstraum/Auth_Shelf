@@ -1,47 +1,72 @@
-import React, {Component} from 'react'
+import React, { Component } from 'react'
 import './ItemForm.css'
 import { connect } from 'react-redux';
-class ItemForm extends Component{
-    state ={
-        description:'',
-        url:''
+import axios from 'axios'
+class ItemForm extends Component {
+componentDidMount(){
+   this.props.dispatch({type:'GET_ITEMS'})
+}
+    state = {
+        description: '',
+        items:''
     }
-    handleChange=(event, type)=>{
+    handleChange = (event, type) => {
         this.setState({
             ...this.state,
             [type]: event.target.value
         })
     }
-    firePayload=()=>{
-        this.props.dispatch({type:'ADD_ITEM', payload:{description:this.state.description, url:this.state.url}})
-        console.log(this.state)
+    firePayload = () => {
+        this.props.dispatch({ type: 'FETCH_ITEMS', payload: this.state.description})
         this.setState({
-            description:'',
-            url:''
+            description: '',
+            url: ''
         })
     }
-    addToShelf=()=>{
-        this.state.description && this.state.url ?
-        this.firePayload()
-        :
-        alert('Please fill out the form before adding to the shelf! :)')
+    addToShelf = () => {
+            this.firePayload()
     }
-    render(){
-        return(
+    render() {
+        return (
             <div className='wrapper'>
-            <h3>Want to add your own item?</h3>
-            <label htmlFor='desc'>Item Description:</label>
-            <input value={this.state.description} id='desc' placeholder='Item Description' onChange={(event)=>this.handleChange(event, 'description')}/>
-            <br/>
-            <br/>
-            <label htmlFor='url'>Item Image url:</label>
-            <input value={this.state.url} id='url' placeholder='Item Image URL' onChange={(event)=>this.handleChange(event, 'url')}/>
-            <br/>
-            <br/>
-            <button onClick={this.addToShelf}>Add To Shelf</button>
+                <h3>Learn about dnd items</h3>
+                    {this.props.list ?
+                    <p>
+                    name:  {<br/>}
+                    {this.props.list.name} 
+                    {<br/>}
+                    description:  {<br/>}
+                    {this.props.list.desc}
+                    {<br/>}
+                    cost:  {<br/>}
+                    {JSON.stringify(this.props.list.cost)}
+                    {<br/>}
+                    weapon catagory:   {<br/>}
+                        {this.props.list.weapon_category}
+                    {<br/>}
+                    damage:  {<br/>}
+                    {JSON.stringify(this.props.list.damage)}
+                    {<br/>}
+                    armor class:   {<br/>}
+                    {JSON.stringify(this.props.list.armor_class)}
+                    </p>
+                    :
+                    <h3>pick an item!</h3>
+                     }
+                    <select value={this.state.description} id='desc' placeholder='Item Description' onChange={(event) => this.handleChange(event, 'description')}>
+                   {this.props.items.map(item=>(<option key={item.index} value={item.index}>{item.name}</option>))}
+                </select>
+                <br />
+                <br />
+                <button onClick={this.addToShelf}>Add To Shelf</button>
             </div>
         )
     }
 }
 
-export default connect()(ItemForm);
+const mapStateToProps = state => ({
+    items:state.list.getItemReducer,
+    list:state.list.getListReducer
+});
+
+export default connect(mapStateToProps)(ItemForm);
